@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
-
+#define TAILLE_MAX 1000
 
 /**
  * 
@@ -74,7 +74,35 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
         SDL_Flip(ecran);
   }
 
-
+void algo_1(char* nom_fichier, char* chaine)
+{
+    FILE* fichier = NULL;
+    char* chaine_search = ""; // Chaine vide pour recherche
+    char* chaine_res = ""; // Chaine vide résultat
+    int max_length = 0;
+    
+    fichier = fopen(nom_fichier, "r"); // Ouverture du fichier
+    
+    if (fichier != NULL)
+    {
+        // Recherche d'un mot du dico dans la chaine donnée,
+        // on garde la plus longue
+        
+        while (fgets(chaine_search, TAILLE_MAX, fichier) != NULL)
+        {
+            if (strlen(strstr(chaine,chaine_search)) > max_length)
+            {
+                chaine_res = strstr(chaine,chaine_search);
+                max_length = strlen(chaine_res);
+            }
+        }
+    }
+    else
+    {
+        printf("Impossible d'ouvrir le fichier. Veuillez spécifier un nom valide/vérifier que le fichier est au bon endroit.");
+    }
+}
+ 
 /**
  * Affichage fenetre
  */
@@ -98,6 +126,10 @@ void pause()
  * main
  */
 int main(int argc, char** argv) {
+    
+    char* fichier_dico = "dico.txt";
+    algo_1(fichier_dico, "asdfarbre");
+    
     SDL_Surface *ecran = NULL; // Le pointeur qui va stocker la surface de l'écran
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -128,4 +160,3 @@ int main(int argc, char** argv) {
   
     return (EXIT_SUCCESS);
 }
-
