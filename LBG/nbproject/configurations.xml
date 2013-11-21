@@ -44,6 +44,8 @@
             <linkerLibLibItem>mingw32</linkerLibLibItem>
             <linkerLibLibItem>SDLmain</linkerLibLibItem>
             <linkerLibLibItem>SDL.dll</linkerLibLibItem>
+            <linkerLibLibItem>SDL_gfx.dll</linkerLibLibItem>
+            <linkerLibLibItem>chipmunk</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>

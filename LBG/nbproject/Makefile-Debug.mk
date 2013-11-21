@@ -52,7 +52,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-lmingw32 -lSDLmain -lSDL.dll
+LDLIBSOPTIONS=-lmingw32 -lSDLmain -lSDL.dll -lSDL_gfx.dll -lchipmunk
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
