@@ -26,10 +26,6 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
-  <sourceRootList>
-    <Elem>../../../Chipmunk-6.2.1/include/chipmunk</Elem>
-    <Elem>../../../SDL-1.2.15/include/SDL</Elem>
-  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="1">
@@ -39,11 +35,20 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <cTool>
+          <standard>3</standard>
+          <commandlineTool>gcc</commandlineTool>
+          <incDir>
+            <pElem>C:/Chipmunk/include</pElem>
+          </incDir>
+        </cTool>
         <linkerTool>
           <linkerLibItems>
             <linkerLibLibItem>mingw32</linkerLibLibItem>
             <linkerLibLibItem>SDLmain</linkerLibLibItem>
             <linkerLibLibItem>SDL.dll</linkerLibLibItem>
+            <linkerLibLibItem>SDL_gfx.dll</linkerLibLibItem>
+            <linkerLibLibItem>chipmunk</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>

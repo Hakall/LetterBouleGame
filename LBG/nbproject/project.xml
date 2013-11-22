@@ -9,10 +9,7 @@
             <header-extensions/>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
-            <sourceRootList>
-                <sourceRootElem>../../../Chipmunk-6.2.1/include/chipmunk</sourceRootElem>
-                <sourceRootElem>../../../SDL-1.2.15/include/SDL</sourceRootElem>
-            </sourceRootList>
+            <sourceRootList/>
             <confList>
                 <confElem>
                     <name>Debug</name>
