@@ -35,7 +35,6 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
-
         <cTool>
           <standard>3</standard>
           <commandlineTool>gcc</commandlineTool>
@@ -43,7 +42,6 @@
             <pElem>C:/Chipmunk/include</pElem>
           </incDir>
         </cTool>
-
         <ccTool>
           <commandlineTool>g++</commandlineTool>
         </ccTool>
