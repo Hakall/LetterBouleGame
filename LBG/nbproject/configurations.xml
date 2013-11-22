@@ -35,7 +35,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
-<<<<<<< HEAD
+
         <cTool>
           <standard>3</standard>
           <commandlineTool>gcc</commandlineTool>
@@ -43,11 +43,10 @@
             <pElem>C:/Chipmunk/include</pElem>
           </incDir>
         </cTool>
-=======
+
         <ccTool>
           <commandlineTool>g++</commandlineTool>
         </ccTool>
->>>>>>> eb22818f0b4c764fce86a2c0d769e1152fa5c523
         <linkerTool>
           <linkerLibItems>
             <linkerLibLibItem>mingw32</linkerLibLibItem>
