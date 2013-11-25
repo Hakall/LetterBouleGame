@@ -4,7 +4,7 @@
  *
  * Created on 25 octobre 2013, 13:50
  */
-
+ 
 #include <stdio.h>
 #include <windows.h>
 #include <stdlib.h>
@@ -12,8 +12,11 @@
 #include <SDL/SDL_gfxPrimitives.h>
 #include <chipmunk/chipmunk.h>
 #include <time.h>
+#include "main.h"
 
 #define TAILLE_MAX 1000
+
+
 
 void algo_1(char* nom_fichier, char* chaine)
 {
@@ -44,13 +47,18 @@ void algo_1(char* nom_fichier, char* chaine)
     }
 }
  
+ 
+/**
+ * 
+ * TO DO : fonctions: Init, Affichage, créer boule
+ */
 
-void bille(SDL_Surface *ecran)
-{   srand(time(NULL));
-    circleColor(ecran, rand()%640, 10, 10, SDL_MapRGB(ecran->format,rand()%255,rand()%255,rand()%255));
-    
-  // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
-  cpVect gravity = cpv(0, -100);
+/**
+ * Init
+ */
+cpSpace *init(){
+    // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
+  cpVect gravity = cpv(50, 0);
   
   // Create an empty space.
   cpSpace *space = cpSpaceNew();
@@ -59,64 +67,71 @@ void bille(SDL_Surface *ecran)
   // Add a static line segment shape for the ground.
   // We'll make it slightly tilted so the ball will roll off.
   // We attach it to space->staticBody to tell Chipmunk it shouldn't be movable.
-  cpShape *ground = cpSegmentShapeNew(space->staticBody, cpv(-20, 5), cpv(20, -5), 0);
-  cpShapeSetFriction(ground, 1);
+  cpShape *ground = cpSegmentShapeNew(space->staticBody, cpv(420, 0), cpv(420, 640), 0);
+  cpShape *murGauche = cpSegmentShapeNew(space->staticBody, cpv(0, 10), cpv(470, 10), 0);
+  cpShape *murDroit = cpSegmentShapeNew(space->staticBody, cpv(0, 630), cpv(470, 630), 0);
+  cpShapeSetFriction(ground, 0.3);
+  cpShapeSetFriction(murGauche, 1);
+  cpShapeSetFriction(murDroit, 1);
   cpSpaceAddShape(space, ground);
+  cpSpaceAddShape(space, murGauche);
+  cpSpaceAddShape(space, murDroit);
   
-  // Now let's make a ball that falls onto the line and rolls off.
-  // First we need to make a cpBody to hold the physical properties of the object.
-  // These include the mass, position, velocity, angle, etc. of the object.
-  // Then we attach collision shapes to the cpBody to give it a size and shape.
   
-  cpFloat radius = 5;
+  return space;  
+}
+
+Boule creerBoule(cpSpace *space)
+{   
+  cpFloat radius = 10;
   cpFloat mass = 1;
   
-  // The moment of inertia is like mass for rotation
-  // Use the cpMomentFor*() functions to help you approximate it.
   cpFloat moment = cpMomentForCircle(mass, 0, radius, cpvzero);
   
-  // The cpSpaceAdd*() functions return the thing that you are adding.
-  // It's convenient to create and add an object in one line.
+
   cpBody *ballBody = cpSpaceAddBody(space, cpBodyNew(mass, moment));
-  cpBodySetPos(ballBody, cpv(0, 15));
+  cpBodySetPos(ballBody, cpv(0, 310));
   
-  // Now we create the collision shape for the ball.
-  // You can create multiple collision shapes that point to the same body.
-  // They will all be attached to the body and move around to follow it.
   cpShape *ballShape = cpSpaceAddShape(space, cpCircleShapeNew(ballBody, radius, cpvzero));
-  cpShapeSetFriction(ballShape, 0.7);
-  
-  // Now that it's all set up, we simulate all the objects in the space by
-  // stepping forward through time in small increments called steps.
-  // It is *highly* recommended to use a fixed size time step.
-  cpFloat timeStep = 1.0/60.0;
-  for(cpFloat time = 0; time < 2; time += timeStep){
-    cpVect pos = cpBodyGetPos(ballBody);
-    cpVect vel = cpBodyGetVel(ballBody);
-    printf(
-      "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n",
-      time, pos.x, pos.y, vel.x, vel.y
-    );
-    
-    cpSpaceStep(space, timeStep);
+  cpShapeSetFriction(ballShape, -0.5);
+  Boule laBoule={cpBodyGetPos(ballBody).x,0,ballShape,ballBody, 'A'};
+  return laBoule;
+
   }
-  
-  // Clean up our objects and exit!
-  cpShapeFree(ballShape);
-  cpBodyFree(ballBody);
-  cpShapeFree(ground);
-  cpSpaceFree(space);
+
+
+
+void affichage(Boule tab[], SDL_Surface *ecran,cpSpace *space, int nbBoules){
+      cpFloat timeStep = 1.0/120.0;
+      
+          for(cpFloat time = 0; time < 2; time += timeStep){
+              for(int i=0;i<nbBoules+1;i++){
+                 cpVect pos = cpBodyGetPos(tab[i].body);
+                 cpVect vel = cpBodyGetVel(tab[i].body);
+    
+                 rectangleColor(ecran,10, 0, 630, 420,SDL_MapRGB(ecran->format,255,255,255));
+                 circleColor(ecran, pos.y, pos.x, 10, SDL_MapRGB(ecran->format,255,255,255));
+   
+                 SDL_Flip(ecran);
+   
+                 SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
+    
+                 cpSpaceStep(space, timeStep);
+               }
+             }
 }
 /*
  * main
  */
 int main(int argc, char** argv) {
 
+    cpSpace *espace=init();
+    Boule lesBoules[30]={0,0,NULL,NULL,'A'};
     SDL_Surface *ecran = NULL;
     SDL_Event event;
     int continuer=1;
     SDL_Init(SDL_INIT_VIDEO);
-    ecran=SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE);
+    ecran=SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
 
 
     
@@ -130,24 +145,29 @@ int main(int argc, char** argv) {
      
     SDL_WM_SetCaption("Letter Boule Game !", NULL);
     SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
+    lesBoules[0]=creerBoule(espace);
+    int nbBoules=0;
     while(continuer)
     {
         SDL_PollEvent(&event);
-        switch(event.type) /* Test du type d'événement */
+        
+        switch(event.type) // Test du type d'événement
         {
-            case SDL_QUIT: /* Si c'est un événement de type "Quitter" */
+            case SDL_QUIT: // Si c'est un événement de type "Quitter" 
                     continuer = 0;
             break;
             case SDL_KEYDOWN:
-                bille(ecran); 
-                SDL_Flip(ecran);
+                nbBoules++;
+                lesBoules[nbBoules]=creerBoule(espace); 
+               //SDL_Flip(ecran);
               
             break;
         }
+        affichage(lesBoules,ecran,espace,nbBoules);
          
-        }
+  }
    
-  
+    cpSpaceFree(espace);
     SDL_Quit();
   
     return (EXIT_SUCCESS);
