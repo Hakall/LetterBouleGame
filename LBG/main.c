@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
+//#include <SDL/SDL_ttf.h>
 #include <chipmunk/chipmunk.h>
 #include <time.h>
 #include "main.h"
@@ -61,73 +62,97 @@ cpSpace *init(){
   cpVect gravity = cpv(50, 0);
   
   // Create an empty space.
-  cpSpace *space = cpSpaceNew();
-  cpSpaceSetGravity(space, gravity);
+  espace = cpSpaceNew();
+  cpSpaceSetGravity(espace, gravity);
   
   // Add a static line segment shape for the ground.
   // We'll make it slightly tilted so the ball will roll off.
   // We attach it to space->staticBody to tell Chipmunk it shouldn't be movable.
-  cpShape *ground = cpSegmentShapeNew(space->staticBody, cpv(420, 0), cpv(420, 640), 0);
-  cpShape *murGauche = cpSegmentShapeNew(space->staticBody, cpv(0, 10), cpv(470, 10), 0);
-  cpShape *murDroit = cpSegmentShapeNew(space->staticBody, cpv(0, 630), cpv(470, 630), 0);
-  cpShapeSetFriction(ground, 0.3);
+  cpShape *ground = cpSegmentShapeNew(espace->staticBody, cpv(420, 0), cpv(420, 640), 0);
+  cpShape *murGauche = cpSegmentShapeNew(espace->staticBody, cpv(0, 10), cpv(470, 10), 0);
+  cpShape *murDroit = cpSegmentShapeNew(espace->staticBody, cpv(0, 630), cpv(470, 630), 0);
+  cpShapeSetFriction(ground, 0.5);
   cpShapeSetFriction(murGauche, 1);
   cpShapeSetFriction(murDroit, 1);
-  cpSpaceAddShape(space, ground);
-  cpSpaceAddShape(space, murGauche);
-  cpSpaceAddShape(space, murDroit);
+  cpSpaceAddShape(espace, ground);
+  cpSpaceAddShape(espace, murGauche);
+  cpSpaceAddShape(espace, murDroit);
   
   
-  return space;  
+  return espace;  
 }
 
-Boule creerBoule(cpSpace *space)
+char *genChar(){
+    char tabChar[50]={'E','E','E','E','E','E','S','S','S','S','A','A','A','A','T','T','T','I','I','I','I','N','N','N','R','R','R','U','U','L','L','L','O','O','D','C','P','M','V','Q','F','B','G','H','J','X','Y','Z','W','K'};
+    char *lettre=tabChar[rand()% 50];
+    return lettre;
+}
+
+Boule creerBoule()
 {   
-  cpFloat radius = 10;
-  cpFloat mass = 1;
+  cpFloat radius = rand() % 16 + 25;// radius entre 25 et 40
+  cpFloat mass =  rand() % 3 + 1;// masse entre 1 et 3;
   
   cpFloat moment = cpMomentForCircle(mass, 0, radius, cpvzero);
   
 
-  cpBody *ballBody = cpSpaceAddBody(space, cpBodyNew(mass, moment));
+  cpBody *ballBody = cpSpaceAddBody(espace, cpBodyNew(mass, moment));
   cpBodySetPos(ballBody, cpv(0, 310));
   
-  cpShape *ballShape = cpSpaceAddShape(space, cpCircleShapeNew(ballBody, radius, cpvzero));
-  cpShapeSetFriction(ballShape, -0.5);
-  Boule laBoule={cpBodyGetPos(ballBody).x,0,ballShape,ballBody, 'A'};
+  cpShape *ballShape = cpSpaceAddShape(espace, cpCircleShapeNew(ballBody, radius, cpvzero));
+  cpShapeSetFriction(ballShape, -0.2);
+  Boule laBoule={radius, cpBodyGetPos(ballBody).x,0,SDL_MapRGB(ecran->format,rand() % 136 + 120,rand() % 136 + 120,rand() % 136 + 120),ballShape,ballBody, genChar()};
   return laBoule;
 
   }
+void initLesBoules(){
+    for(int i=0;i<50;i++){        
+                lesBoules[i]=creerBoule(espace); 
+                };
+}
 
-
-
-void affichage(Boule tab[], SDL_Surface *ecran,cpSpace *space, int nbBoules){
-      cpFloat timeStep = 1.0/120.0;
+/*void initPolice(){
+    if(TTF_Init() == -1)
+    {
+        fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
+    
+    police = TTF_OpenFont("imagine_font.ttf", 20);
+}
+*/
+void affichage(){
+ cpFloat timeStep = 1.0/120.0;
       
           for(cpFloat time = 0; time < 2; time += timeStep){
-              for(int i=0;i<nbBoules+1;i++){
-                 cpVect pos = cpBodyGetPos(tab[i].body);
-                 cpVect vel = cpBodyGetVel(tab[i].body);
+              SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
+              for(int i=0;i<50;i++){
+                 cpVect pos = cpBodyGetPos(lesBoules[i].body);
+                 cpVect vel = cpBodyGetVel(lesBoules[i].body);
     
                  rectangleColor(ecran,10, 0, 630, 420,SDL_MapRGB(ecran->format,255,255,255));
-                 circleColor(ecran, pos.y, pos.x, 10, SDL_MapRGB(ecran->format,255,255,255));
-   
-                 SDL_Flip(ecran);
-   
-                 SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
-    
-                 cpSpaceStep(space, timeStep);
+                 circleColor(ecran, pos.y, pos.x, lesBoules[i].radius, lesBoules[i].couleurs); 
+                 
+                 //lettre
+                 /*SDL_Color white={255,255,255};
+                 SDL_Surface *lettre= TTF_RenderText_Solid(police, lesBoules[i].lettre, white);
+                 SDL_Rect position;
+                 position.x=pos.x;
+                 position.y=pos.y;
+                 SDL_BlitSurface(lettre, NULL, ecran, &position);*/
                }
-             }
+              cpSpaceStep(espace, timeStep);
+              SDL_Flip(ecran);
+          }
 }
 /*
  * main
  */
 int main(int argc, char** argv) {
 
-    cpSpace *espace=init();
-    Boule lesBoules[30]={0,0,NULL,NULL,'A'};
-    SDL_Surface *ecran = NULL;
+    
+    
+    espace=init();
     SDL_Event event;
     int continuer=1;
     SDL_Init(SDL_INIT_VIDEO);
@@ -145,8 +170,7 @@ int main(int argc, char** argv) {
      
     SDL_WM_SetCaption("Letter Boule Game !", NULL);
     SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
-    lesBoules[0]=creerBoule(espace);
-    int nbBoules=0;
+    initLesBoules(espace);
     while(continuer)
     {
         SDL_PollEvent(&event);
@@ -157,17 +181,17 @@ int main(int argc, char** argv) {
                     continuer = 0;
             break;
             case SDL_KEYDOWN:
-                nbBoules++;
-                lesBoules[nbBoules]=creerBoule(espace); 
-               //SDL_Flip(ecran);
-              
+                
             break;
         }
-        affichage(lesBoules,ecran,espace,nbBoules);
+
+        affichage();
          
   }
    
     cpSpaceFree(espace);
+    //TTF_CloseFont(police);
+    //TTF_Quit();
     SDL_Quit();
   
     return (EXIT_SUCCESS);
