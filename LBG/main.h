@@ -19,7 +19,7 @@ typedef struct Boule {
  Uint32 couleurs;
  cpShape *shape;
  cpBody *body;
- char *lettre;
+ char* lettre;
 } Boule;
 
 Boule lesBoules[50]={0,0,0,0,NULL,NULL,NULL};
@@ -28,7 +28,7 @@ SDL_Surface *ecran = NULL;
 
 cpSpace *espace= NULL;
 
-//TTF_Font *police = NULL;
+TTF_Font *police = NULL;
         
 #ifdef	__cplusplus
 }

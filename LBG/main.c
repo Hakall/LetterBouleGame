@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_gfxPrimitives.h>
-//#include <SDL/SDL_ttf.h>
+#include <SDL/SDL_ttf.h>
 #include <chipmunk/chipmunk.h>
 #include <time.h>
 #include "main.h"
@@ -50,11 +50,6 @@ void algo_1(char* nom_fichier, char* chaine)
  
  
 /**
- * 
- * TO DO : fonctions: Init, Affichage, créer boule
- */
-
-/**
  * Init
  */
 cpSpace *init(){
@@ -82,9 +77,9 @@ cpSpace *init(){
   return espace;  
 }
 
-char *genChar(){
-    char tabChar[50]={'E','E','E','E','E','E','S','S','S','S','A','A','A','A','T','T','T','I','I','I','I','N','N','N','R','R','R','U','U','L','L','L','O','O','D','C','P','M','V','Q','F','B','G','H','J','X','Y','Z','W','K'};
-    char *lettre=tabChar[rand()% 50];
+char* genChar(){
+    char* tabChar[50]={"E","E","E","E","E","E","S","S","S","S","A","A","A","A","T","T","T","I","I","I","I","N","N","N","R","R","R","U","U","L","L","L","O","O","D","C","P","M","V","Q","F","B","G","H","J","X","Y","Z","W","K"};
+    char* lettre=tabChar[rand()% 50];
     return lettre;
 }
 
@@ -111,16 +106,16 @@ void initLesBoules(){
                 };
 }
 
-/*void initPolice(){
+void initPolice(){
     if(TTF_Init() == -1)
     {
         fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
         exit(EXIT_FAILURE);
     }
     
-    police = TTF_OpenFont("imagine_font.ttf", 20);
+  police = TTF_OpenFont("imagine_font.ttf", 20);
 }
-*/
+
 void affichage(){
  cpFloat timeStep = 1.0/120.0;
       
@@ -134,12 +129,12 @@ void affichage(){
                  circleColor(ecran, pos.y, pos.x, lesBoules[i].radius, lesBoules[i].couleurs); 
                  
                  //lettre
-                 /*SDL_Color white={255,255,255};
+                 SDL_Color white={255,255,255};
                  SDL_Surface *lettre= TTF_RenderText_Solid(police, lesBoules[i].lettre, white);
                  SDL_Rect position;
-                 position.x=pos.x;
-                 position.y=pos.y;
-                 SDL_BlitSurface(lettre, NULL, ecran, &position);*/
+                 position.y=pos.x;
+                 position.x=pos.y;
+                 SDL_BlitSurface(lettre, NULL, ecran, &position);
                }
               cpSpaceStep(espace, timeStep);
               SDL_Flip(ecran);
@@ -170,6 +165,7 @@ int main(int argc, char** argv) {
      
     SDL_WM_SetCaption("Letter Boule Game !", NULL);
     SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
+    initPolice();
     initLesBoules(espace);
     while(continuer)
     {
@@ -190,8 +186,8 @@ int main(int argc, char** argv) {
   }
    
     cpSpaceFree(espace);
-    //TTF_CloseFont(police);
-    //TTF_Quit();
+    TTF_CloseFont(police);
+    TTF_Quit();
     SDL_Quit();
   
     return (EXIT_SUCCESS);
