@@ -29,6 +29,17 @@ SDL_Surface *ecran = NULL;
 cpSpace *espace= NULL;
 
 TTF_Font *police = NULL;
+
+int x,y,xFin,yFin=0;;
+
+typedef struct
+{
+    int mousex,mousey;
+    int mousexrel,mouseyrel;
+    char mousebuttons[8];
+        char quit;
+} Input;
+
         
 #ifdef	__cplusplus
 }

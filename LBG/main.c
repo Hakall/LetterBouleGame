@@ -47,8 +47,74 @@ void algo_1(char* nom_fichier, char* chaine)
         printf("Impossible d'ouvrir le fichier. Veuillez spécifier un nom valide/vérifier que le fichier est au bon endroit.");
     }
 }
+
+
+
+boolean UpdateEvents(Input* in)
+{
+	SDL_Event event;
+	int draw=0;
+	while(1)
+	{
+	    SDL_PollEvent(&event);
+		switch (event.type)
+		{
+        case SDL_MOUSEMOTION:
+			in->mousex=event.motion.x;
+			in->mousey=event.motion.y;
+			in->mousexrel=event.motion.xrel;
+			in->mouseyrel=event.motion.yrel;
+			xFin=in->mousexrel;
+			yFin=in->mouseyrel;
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+            x=event.motion.x;
+            y=event.motion.y;
+            draw=1;
+			in->mousebuttons[event.button.button]=1;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			in->mousebuttons[event.button.button]=0;
+			if(draw){
+                    xFin=event.motion.x;
+                    yFin=event.motion.y;
+                    lineRGBA(ecran,
+                             x,
+                             y,
+                             xFin,
+                             yFin,
+                             0,100,255,255);
+                    draw=0;
+			}
+            SDL_Flip(ecran);
+            return TRUE;
+			break;
+		default:
+            return FALSE;
+            break;
+		}
+	}
+}
+
+ boolean tracerLigne(){
+    Input *inputLigne;
+    boolean test=UpdateEvents(inputLigne);
+    if(test)return TRUE;
+    else return FALSE;
+}
  
  
+ 
+void pause() {
+    int continuer = 1;
+    SDL_Event event;
+    while (continuer) {
+        SDL_WaitEvent(&event);
+        switch(event.type) {
+            case SDL_QUIT: continuer = 0;
+        }
+    }
+}
 /**
  * Init
  */
@@ -76,6 +142,7 @@ cpSpace *init(){
   
   return espace;  
 }
+
 
 char* genChar(){
     char* tabChar[50]={"E","E","E","E","E","E","S","S","S","S","A","A","A","A","T","T","T","I","I","I","I","N","N","N","R","R","R","U","U","L","L","L","O","O","D","C","P","M","V","Q","F","B","G","H","J","X","Y","Z","W","K"};
@@ -116,10 +183,11 @@ void initPolice(){
   police = TTF_OpenFont("imagine_font.ttf", 20);
 }
 
-void affichage(){
- cpFloat timeStep = 1.0/120.0;
+void affichage(int x1, int y1, int x2, int y2,boolean clic){
+    
+    cpFloat timeStep = 1.0/60.0;
       
-          for(cpFloat time = 0; time < 2; time += timeStep){
+          for(cpFloat time = 0; time < 25; time += timeStep){
               SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
               for(int i=0;i<50;i++){
                  cpVect pos = cpBodyGetPos(lesBoules[i].body);
@@ -135,11 +203,20 @@ void affichage(){
                  position.y=pos.x;
                  position.x=pos.y;
                  SDL_BlitSurface(lettre, NULL, ecran, &position);
+                 
+                 //segment
+                 
                }
+              if(clic==TRUE)
+                 lineRGBA(ecran,x1,y1,x2,y2,255,255,255,255);
+                 
               cpSpaceStep(espace, timeStep);
               SDL_Flip(ecran);
           }
+ SDL_Flip(ecran);
 }
+
+
 /*
  * main
  */
@@ -167,24 +244,27 @@ int main(int argc, char** argv) {
     SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
     initPolice();
     initLesBoules(espace);
-    while(continuer)
-    {
-        SDL_PollEvent(&event);
-        
-        switch(event.type) // Test du type d'événement
-        {
-            case SDL_QUIT: // Si c'est un événement de type "Quitter" 
-                    continuer = 0;
-            break;
-            case SDL_KEYDOWN:
-                
-            break;
+    boolean clic=FALSE;
+    int x_debut=0;
+    int y_debut=0;
+    boolean refresh=TRUE;
+    while (continuer) {
+        SDL_WaitEvent(&event);
+        switch(event.type) {
+            case SDL_QUIT: continuer = 0;
         }
-
-        affichage();
-         
-  }
-   
+        
+        if(refresh)
+        {
+            affichage(0,0,0,0,clic);
+            refresh=FALSE;
+        }    
+        SDL_Flip(ecran);
+        refresh=tracerLigne();
+        
+        SDL_Flip(ecran);
+    }   
+    
     cpSpaceFree(espace);
     TTF_CloseFont(police);
     TTF_Quit();
