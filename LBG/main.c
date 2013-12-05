@@ -18,7 +18,6 @@
 #define TAILLE_MAX 1000
 
 
-
 void algo_1(char* nom_fichier, char* chaine)
 {
     FILE* fichier = NULL;
@@ -48,7 +47,28 @@ void algo_1(char* nom_fichier, char* chaine)
     }
 }
 
+ void analyserLettres(int x1, int y1, int x2, int y2){
+     cpBB unCpBB;
+     char result[50];
+     int n=0;
+     for(int i=0;i<50;i++)
+    { 
+        unCpBB=cpBBNewForCircle(cpv(lesBoules[i].y, lesBoules[i].x ),lesBoules[i].radius);
+        int intersected=cpBBIntersectsSegment(unCpBB, cpv(x1,y1),cpv(x2,y2));;
+        //printf("\n %c",*lesBoules[i].lettre);
+        if(intersected==1 && lesBoules[i].del==FALSE)
+        {
+            //on passe a true si mot trouver...algo dico
+            lesBoules[i].del=TRUE;
+            cpSpaceRemoveShape(espace,lesBoules[i].shape);
+            cpSpaceRemoveBody(espace,lesBoules[i].body);
+            //result[n]=lesBoules[i].lettre;
+            n++;
+        }
+        
+    }
 
+ }
 
 boolean UpdateEvents(Input* in)
 {
@@ -86,6 +106,7 @@ boolean UpdateEvents(Input* in)
                              0,100,255,255);
                     draw=0;
 			}
+                        analyserLettres(x,y, xFin,yFin);
             SDL_Flip(ecran);
             return TRUE;
 			break;
@@ -103,7 +124,7 @@ boolean UpdateEvents(Input* in)
     else return FALSE;
 }
  
- 
+
  
 void pause() {
     int continuer = 1;
@@ -163,7 +184,7 @@ Boule creerBoule()
   
   cpShape *ballShape = cpSpaceAddShape(espace, cpCircleShapeNew(ballBody, radius, cpvzero));
   cpShapeSetFriction(ballShape, -0.2);
-  Boule laBoule={radius, cpBodyGetPos(ballBody).x,0,SDL_MapRGB(ecran->format,rand() % 136 + 120,rand() % 136 + 120,rand() % 136 + 120),ballShape,ballBody, genChar()};
+  Boule laBoule={radius, cpBodyGetPos(ballBody).x,0,rand() % 136 + 150,rand() % 136 + 100,rand() % 136 + 50,255,ballShape,ballBody, genChar(),FALSE};
   return laBoule;
 
   }
@@ -183,32 +204,41 @@ void initPolice(){
   police = TTF_OpenFont("imagine_font.ttf", 20);
 }
 
-void affichage(int x1, int y1, int x2, int y2,boolean clic){
+void affichage(){
     
     cpFloat timeStep = 1.0/60.0;
-      
+      SDL_Color white={255,255,255};
           for(cpFloat time = 0; time < 25; time += timeStep){
               SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
               for(int i=0;i<50;i++){
+                  if(lesBoules[i].del==FALSE){
                  cpVect pos = cpBodyGetPos(lesBoules[i].body);
                  cpVect vel = cpBodyGetVel(lesBoules[i].body);
     
                  rectangleColor(ecran,10, 0, 630, 420,SDL_MapRGB(ecran->format,255,255,255));
-                 circleColor(ecran, pos.y, pos.x, lesBoules[i].radius, lesBoules[i].couleurs); 
+                 circleRGBA(ecran, pos.y, pos.x, lesBoules[i].radius, lesBoules[i].r,lesBoules[i].g,lesBoules[i].b,lesBoules[i].a); 
+                 filledCircleRGBA(ecran,pos.y,pos.x,lesBoules[i].radius, lesBoules[i].r,lesBoules[i].g,lesBoules[i].b,lesBoules[i].a);
                  
                  //lettre
-                 SDL_Color white={255,255,255};
+                 
                  SDL_Surface *lettre= TTF_RenderText_Solid(police, lesBoules[i].lettre, white);
                  SDL_Rect position;
                  position.y=pos.x;
                  position.x=pos.y;
+                 lesBoules[i].x=pos.x;
+                 lesBoules[i].y=pos.y;
                  SDL_BlitSurface(lettre, NULL, ecran, &position);
+                  }
                  
-                 //segment
-                 
+                 //affichage points
+                 SDL_Color white={255,255,255};
+                 SDL_Surface *points=TTF_RenderText_Solid(police,"Score:" , white);
+                 SDL_Rect position_points;
+                 position_points.y=435;
+                 position_points.x=10;
+                 SDL_BlitSurface(points, NULL, ecran, &position_points);
                }
-              if(clic==TRUE)
-                 lineRGBA(ecran,x1,y1,x2,y2,255,255,255,255);
+
                  
               cpSpaceStep(espace, timeStep);
               SDL_Flip(ecran);
@@ -222,8 +252,7 @@ void affichage(int x1, int y1, int x2, int y2,boolean clic){
  */
 int main(int argc, char** argv) {
 
-    
-    
+
     espace=init();
     SDL_Event event;
     int continuer=1;
@@ -244,9 +273,6 @@ int main(int argc, char** argv) {
     SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format,0,0,0));
     initPolice();
     initLesBoules(espace);
-    boolean clic=FALSE;
-    int x_debut=0;
-    int y_debut=0;
     boolean refresh=TRUE;
     while (continuer) {
         SDL_WaitEvent(&event);
@@ -256,7 +282,7 @@ int main(int argc, char** argv) {
         
         if(refresh)
         {
-            affichage(0,0,0,0,clic);
+            affichage();
             refresh=FALSE;
         }    
         SDL_Flip(ecran);

@@ -16,13 +16,18 @@ typedef struct Boule {
  int  radius;
  cpFloat  x;
  cpFloat y;
- Uint32 couleurs;
+ Uint8 r;
+ Uint8 g;
+ Uint8 b;
+ Uint8 a;
  cpShape *shape;
  cpBody *body;
- char* lettre;
+ char *lettre;
+ boolean del;
 } Boule;
 
-Boule lesBoules[50]={0,0,0,0,NULL,NULL,NULL};
+Boule lesBoules[50]={0,0,0,0,0,0,0,NULL,NULL,NULL};
+
 
 SDL_Surface *ecran = NULL;
 

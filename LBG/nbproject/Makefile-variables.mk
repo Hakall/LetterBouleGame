@@ -15,13 +15,13 @@ CND_PACKAGE_DIR_Debug=dist/Debug/MinGW-Windows/package
 CND_PACKAGE_NAME_Debug=lbg.tar
 CND_PACKAGE_PATH_Debug=dist/Debug/MinGW-Windows/package/lbg.tar
 # Release configuration
-CND_PLATFORM_Release=MinGW_1-Windows
-CND_ARTIFACT_DIR_Release=dist/Release/MinGW_1-Windows
+CND_PLATFORM_Release=MinGW-Windows
+CND_ARTIFACT_DIR_Release=dist/Release/MinGW-Windows
 CND_ARTIFACT_NAME_Release=lbg
-CND_ARTIFACT_PATH_Release=dist/Release/MinGW_1-Windows/lbg
-CND_PACKAGE_DIR_Release=dist/Release/MinGW_1-Windows/package
+CND_ARTIFACT_PATH_Release=dist/Release/MinGW-Windows/lbg
+CND_PACKAGE_DIR_Release=dist/Release/MinGW-Windows/package
 CND_PACKAGE_NAME_Release=lbg.tar
-CND_PACKAGE_PATH_Release=dist/Release/MinGW_1-Windows/package/lbg.tar
+CND_PACKAGE_PATH_Release=dist/Release/MinGW-Windows/package/lbg.tar
 #
 # include compiler specific variables
 #
