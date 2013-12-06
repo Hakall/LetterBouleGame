@@ -49,8 +49,8 @@ void algo_1(char* nom_fichier, char* chaine)
 
  void analyserLettres(int x1, int y1, int x2, int y2){
      cpBB unCpBB;
-     char result[50];
      int n=0;
+     char * result=(char *) malloc(sizeof(char) * 255);
      for(int i=0;i<50;i++)
     { 
         unCpBB=cpBBNewForCircle(cpv(lesBoules[i].y, lesBoules[i].x ),lesBoules[i].radius);
@@ -58,16 +58,17 @@ void algo_1(char* nom_fichier, char* chaine)
         //printf("\n %c",*lesBoules[i].lettre);
         if(intersected==1 && lesBoules[i].del==FALSE)
         {
-            //on passe a true si mot trouver...algo dico
+            //on passe a true si mot trouver...
             lesBoules[i].del=TRUE;
             cpSpaceRemoveShape(espace,lesBoules[i].shape);
             cpSpaceRemoveBody(espace,lesBoules[i].body);
-            //result[n]=lesBoules[i].lettre;
+            result[n]=*lesBoules[i].lettre;
             n++;
         }
         
     }
-
+     //algo + changer score !!!
+     free(result);
  }
 
 boolean UpdateEvents(Input* in)
@@ -230,19 +231,26 @@ void affichage(){
                  SDL_BlitSurface(lettre, NULL, ecran, &position);
                   }
                  
-                 //affichage points
-                 SDL_Color white={255,255,255};
-                 SDL_Surface *points=TTF_RenderText_Solid(police,"Score:" , white);
-                 SDL_Rect position_points;
-                 position_points.y=435;
-                 position_points.x=10;
-                 SDL_BlitSurface(points, NULL, ecran, &position_points);
+ 
                }
 
-                 
+              SDL_Surface *pointsTexte=TTF_RenderText_Solid(police,"Score:" , white);
+                 SDL_Rect position_pointsTexte;
+                 position_pointsTexte.y=435;
+                 position_pointsTexte.x=10;
+                 SDL_BlitSurface(pointsTexte, NULL, ecran, &position_pointsTexte);
+                 char scoreChar[15]={"0"};
+                 snprintf(scoreChar, 15, "%d", score);
+                 SDL_Surface *points=TTF_RenderText_Solid(police,scoreChar, white);
+                 SDL_Rect position_points;
+                 position_points.y=435;
+                 position_points.x=100;
+                 SDL_BlitSurface(points, NULL, ecran, &position_points);
               cpSpaceStep(espace, timeStep);
               SDL_Flip(ecran);
           }
+                      //affichage points
+                 
  SDL_Flip(ecran);
 }
 
