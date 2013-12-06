@@ -17,83 +17,146 @@
 
 #define TAILLE_MAX 1000
 
-boolean chercherMot(char *mot){
+char* chercherMot(char *mot){
   
-    FILE *entree;
-    entree=fopen("dico.txt","r");
-    char buff[sizeof(mot)];
-    do{
-       fscanf(entree,"%s",buff); 
-       if(strcmp(buff,mot)){
-           fclose(entree);
-           return TRUE;
-       } 
-    }while(!feof(entree)&& strcmp(buff,mot)!=0);
-    fclose(entree);
-    return FALSE;
+  int longueur = strlen (mot);
+  int existe = 0;
+  char mot_bis[longueur];
+  FILE *entree;
+
+    entree = fopen ("dico.txt", "r");
+    do {
+      fscanf (entree,"%s",mot_bis);
+      if (strcmp(mot_bis,mot)==0){
+        //printf ("Bravo ! Le mot %s existe ! \n");
+        //printf("Il rapporte %d",longueur);
+        existe=1;
+      }
+    }while (!feof(entree) && strcmp(mot_bis,mot)!=0);
+  
+  if(!existe)
+  {
+      //printf ("Le mot %s n'existe pas!\n",mot);
+      mot=NULL;
+  }
+    return mot;
 }
 
-//couper string
-char *couperString(char *s,int taille, int index){
-    char *newString=NULL;
-    
-    if(s!NULL){
-        newString=malloc(sizeof(*newString)*((taille+2)));
-        if(newString!=NULL){
-            int i;
-            for(i=index;i<(taille+index);i++){
-                newString[i-index]=s[i];
-            }
-            newString[i-index]="\0";
-        }
-        else{
-            exit(EXIT_FAILURE);
-        }
-    }
-    return newString;
+char *couper_string (const char *string, unsigned int start, unsigned int end)
+{
+   char *new_string = NULL;
+
+   if (string != NULL && start < end)
+   {
+      new_string = malloc (sizeof (*new_string) * (end - start + 2));
+      if (new_string != NULL)
+      {
+         int i;
+
+         for (i = start; i <= end; i++)
+         {
+            new_string[i-start] = string[i];
+         }
+         new_string[i-start] = '\0';
+      }
+      else
+      {
+         fprintf (stderr, "Memoire insuffisante\n");
+         exit (EXIT_FAILURE);
+      }
+   }
+   return new_string;
 }
 
 char* algo_1( char* chaine)
 {
-    
- char *res=NULL;
- for(int i=sizeof(chaine);i>0;i--){
-     for(int j=0;j<sizeof(chaine);j++)
-        if(i+j<sizeof(chaine)){
-        res=couperString(chaine,j,i);
-        if(res!=NULL){
-            if(chercherMot(res)){
-            return res;    
+   int longueur = strlen (chaine);
+    char *sous_chaine=NULL;
+    char *chaine_search=NULL;
+    char *chaine_res=NULL;
+    unsigned int start=0;
+    unsigned int fin=longueur-1;
+    int i=0;
+    int j=0;
+    for(i=start;i<fin;i++)
+    {
+        for(j=fin;j>i;j--)
+        {
+            sous_chaine=couper_string(chaine,i,j);
+            chaine_search=NULL;
+            //printf("%s",sous_chaine);
+            if(!chaine_res)
+            {
+                chaine_search=chercherMot(sous_chaine);
+                if(chaine_search)
+                {
+                    chaine_res=chaine_search;
+                }
             }
+            else if (strlen(sous_chaine)>strlen(chaine_res))
+            {
+                chaine_search=chercherMot(sous_chaine);
+                if(chaine_search)
+                {
+                    chaine_res=chaine_search;
+                }
+            }       
+        }       
+    }
+    if(!chaine_res)
+    {
+        if(strchr(chaine,'y'))
+        {
+            char *A="y";
+            chaine_res=A;
         }
-     }
-     return res;
- }
+        if(strchr(chaine,'a'))
+        {
+            char *A="a";
+            chaine_res=A;
+
+        }
+    }
+    //printf("%s",chaine_res);
+    return chaine_res;
 }
 
  void analyserLettres(int x1, int y1, int x2, int y2){
      cpBB unCpBB;
      int n=0;
      char * result=(char *) malloc(sizeof(char) * 255);
+     char * stringBoules=NULL;
      for(int i=0;i<50;i++)
     { 
         unCpBB=cpBBNewForCircle(cpv(lesBoules[i].y, lesBoules[i].x ),lesBoules[i].radius);
         int intersected=cpBBIntersectsSegment(unCpBB, cpv(x1,y1),cpv(x2,y2));;
-        //printf("\n %c",*lesBoules[i].lettre);
         if(intersected==1 && lesBoules[i].del==FALSE)
         {
-            //on passe a true si mot trouver...
-            lesBoules[i].del=TRUE;
-            nbBoules=nbBoules-1;
-            cpSpaceRemoveShape(espace,lesBoules[i].shape);
-            cpSpaceRemoveBody(espace,lesBoules[i].body);
+            
             result[n]=*lesBoules[i].lettre;
             n++;
+            
+            //printf("%s",result);
+            stringBoules=algo_1(result);
+            if(stringBoules!=NULL){
+               
+            for(int m=0;m<sizeof(result);m++){
+                if(*lesBoules[i].lettre==result[m]){
+                  lesBoules[i].del=TRUE;
+                  cpSpaceRemoveShape(espace,lesBoules[i].shape);
+                  cpSpaceRemoveBody(espace,lesBoules[i].body);
+                  nbBoules=nbBoules-1;
+                        }
+                }
+               score+=sizeof(stringBoules)/4;
+                printf(" \n %s",stringBoules);
+            }
+          
+        
         }
         
     }
-     score=score+10;
-     //algo + changer score !!!
+     
      free(result);
  }
 
@@ -193,8 +256,8 @@ cpSpace *init(){
 
 
 char* genChar(){
-    char* tabChar[50]={"E","E","E","E","E","E","S","S","S","S","A","A","A","A","T","T","T","I","I","I","I","N","N","N","R","R","R","U","U","L","L","L","O","O","D","C","P","M","V","Q","F","B","G","H","J","X","Y","Z","W","K"};
-    char* lettre=tabChar[rand()% 50];
+    char* tabchar[50]={"e","e","e","e","e","e","s","s","s","s","a","a","a","a","t","t","t","i","i","i","i","n","n","n","r","r","r","u","u","l","l","l","o","o","d","c","p","m","v","q","f","b","g","h","j","x","y","z","w","k"};
+    char* lettre=tabchar[rand()% 50];
     return lettre;
 }
 
@@ -273,6 +336,8 @@ void affichage(){
                  position_points.y=435;
                  position_points.x=100;
                  SDL_BlitSurface(points, NULL, ecran, &position_points);
+                 
+                 
               cpSpaceStep(espace, timeStep);
               SDL_Flip(ecran);
           }
