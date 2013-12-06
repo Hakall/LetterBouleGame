@@ -35,6 +35,10 @@ cpSpace *espace= NULL;
 
 TTF_Font *police = NULL;
 
+int score=0;
+
+int nbBoules=50;
+
 int x,y,xFin,yFin=0;;
 
 typedef struct
