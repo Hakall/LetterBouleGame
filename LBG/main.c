@@ -17,34 +17,58 @@
 
 #define TAILLE_MAX 1000
 
+boolean chercherMot(char *mot){
+  
+    FILE *entree;
+    entree=fopen("dico.txt","r");
+    char buff[sizeof(mot)];
+    do{
+       fscanf(entree,"%s",buff); 
+       if(strcmp(buff,mot)){
+           fclose(entree);
+           return TRUE;
+       } 
+    }while(!feof(entree)&& strcmp(buff,mot)!=0);
+    fclose(entree);
+    return FALSE;
+}
 
-void algo_1(char* nom_fichier, char* chaine)
-{
-    FILE* fichier = NULL;
-    char* chaine_search = ""; // Chaine vide pour recherche
-    char* chaine_res = ""; // Chaine vide résultat
-    int max_length = 0;
+//couper string
+char *couperString(char *s,int taille, int index){
+    char *newString=NULL;
     
-    fichier = fopen(nom_fichier, "r"); // Ouverture du fichier
-    
-    if (fichier != NULL)
-    {
-        // Recherche d'un mot du dico dans la chaine donnée,
-        // on garde la plus longue
-        
-        while (fgets(chaine_search, TAILLE_MAX, fichier) != NULL)
-        {
-            if (strlen(strstr(chaine,chaine_search)) > max_length)
-            {
-                chaine_res = strstr(chaine,chaine_search);
-                max_length = strlen(chaine_res);
+    if(s!NULL){
+        newString=malloc(sizeof(*newString)*((taille+2)));
+        if(newString!=NULL){
+            int i;
+            for(i=index;i<(taille+index);i++){
+                newString[i-index]=s[i];
             }
+            newString[i-index]="\0";
+        }
+        else{
+            exit(EXIT_FAILURE);
         }
     }
-    else
-    {
-        printf("Impossible d'ouvrir le fichier. Veuillez spécifier un nom valide/vérifier que le fichier est au bon endroit.");
-    }
+    return newString;
+}
+
+char* algo_1( char* chaine)
+{
+    
+ char *res=NULL;
+ for(int i=sizeof(chaine);i>0;i--){
+     for(int j=0;j<sizeof(chaine);j++)
+        if(i+j<sizeof(chaine)){
+        res=couperString(chaine,j,i);
+        if(res!=NULL){
+            if(chercherMot(res)){
+            return res;    
+            }
+        }
+     }
+     return res;
+ }
 }
 
  void analyserLettres(int x1, int y1, int x2, int y2){
