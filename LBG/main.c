@@ -60,6 +60,7 @@ void algo_1(char* nom_fichier, char* chaine)
         {
             //on passe a true si mot trouver...
             lesBoules[i].del=TRUE;
+            nbBoules=nbBoules-1;
             cpSpaceRemoveShape(espace,lesBoules[i].shape);
             cpSpaceRemoveBody(espace,lesBoules[i].body);
             result[n]=*lesBoules[i].lettre;
@@ -67,6 +68,7 @@ void algo_1(char* nom_fichier, char* chaine)
         }
         
     }
+     score=score+10;
      //algo + changer score !!!
      free(result);
  }
@@ -207,6 +209,7 @@ void initPolice(){
 
 void affichage(){
     
+       
     cpFloat timeStep = 1.0/60.0;
       SDL_Color white={255,255,255};
           for(cpFloat time = 0; time < 25; time += timeStep){
@@ -293,6 +296,15 @@ int main(int argc, char** argv) {
             affichage();
             refresh=FALSE;
         }    
+        if(nbBoules==0)
+    {
+        SDL_Color white={255,255,255};
+        SDL_Surface *game=TTF_RenderText_Solid(police,"GAME OVER" , white);
+        SDL_Rect position_game;
+        position_game.y=320;
+        position_game.x=240;
+        SDL_BlitSurface(game, NULL, ecran, &position_game);  
+    }
         SDL_Flip(ecran);
         refresh=tracerLigne();
         
